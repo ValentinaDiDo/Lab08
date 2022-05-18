@@ -7,9 +7,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import it.polito.tdp.extflightdelays.model.Airline;
 import it.polito.tdp.extflightdelays.model.Airport;
+import it.polito.tdp.extflightdelays.model.Connessioni;
 import it.polito.tdp.extflightdelays.model.Flight;
 
 public class ExtFlightDelaysDAO {
@@ -91,4 +93,39 @@ public class ExtFlightDelaysDAO {
 			throw new RuntimeException("Error Connection Database");
 		}
 	}
+	public List<Connessioni> getConnectedAirports(int d, Map<Integer, Airport> aeroporti) {
+		String sql = "SELECT ORIGIN_AIRPORT_ID as o, DESTINATION_AIRPORT_ID as a, AVG(DISTANCE) as d "
+				+ "FROM flights "
+				+ "GROUP BY ORIGIN_AIRPORT_ID, DESTINATION_AIRPORT_ID "
+				+ "HAVING AVG(DISTANCE) > ? ";
+		List<Connessioni> connessioni = new ArrayList<Connessioni>();
+		
+
+		try {
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, d);
+			ResultSet rs = st.executeQuery();
+
+			while (rs.next()) {
+				Airport partenza = aeroporti.get(rs.getInt("o"));
+				Airport arrivo = aeroporti.get(rs.getInt("a"));
+				if(partenza!=null && arrivo !=null) {
+					Connessioni c = new Connessioni(partenza, arrivo,rs.getInt("d"));
+					connessioni.add(c);
+				}
+			//Connessioni c = new Connessioni(rs.getInt("o"), rs.getInt("a"), rs.getInt("d"));
+				
+			}
+
+			conn.close();
+			return connessioni;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Errore connessione al database");
+			throw new RuntimeException("Error Connection Database");
+		}
+	}
+	
 }

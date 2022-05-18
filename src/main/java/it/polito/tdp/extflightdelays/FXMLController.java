@@ -5,8 +5,10 @@
 package it.polito.tdp.extflightdelays;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
+import it.polito.tdp.extflightdelays.model.Connessioni;
 import it.polito.tdp.extflightdelays.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -17,6 +19,7 @@ import javafx.scene.control.TextField;
 public class FXMLController {
 
 	private Model model;
+	
 	
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
@@ -35,7 +38,25 @@ public class FXMLController {
 
     @FXML
     void doAnalizzaAeroporti(ActionEvent event) {
-    	//TODO
+    	model.attivaModel();
+    	String s = distanzaMinima.getText();
+    	int dMin = Integer.parseInt(s);
+    
+    	model.creaGrafo(dMin);
+    	
+    	int vertici = model.numeroVerticiGrafo();
+    	int archi = model.numeroArchiGrafo();
+    	List<Connessioni> connessioni = model.getAllConnessioni();
+    	
+    	txtResult.setText("NUMERO VERTICI: "+vertici+"\nNUMERO ARCHI: "+archi);
+    	
+    	txtResult.appendText("\nCOPPIE DI AEROPORTI E RISPETTIVE DISTANZE: ");
+    			
+    	for(Connessioni c : connessioni) {
+    		txtResult.appendText(c.getAeroportoPartenza()+" "+c.getAeroportoArrivo()+" "+c.getDistanza()+"\n");
+    	//	System.out.println(c.getAeroportoPartenza()+" "+c.getAeroportoArrivo()+" "+c.getDistanza());
+    	}
+    	
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
